@@ -59,11 +59,10 @@
 
 (defun xcode--build-command (&optional target configuration sdk)
   (let ((build-command "xcodebuild"))
-    (if (not target)
-        (setq build-command (concat build-command " -activetarget"))
-      (setq build-command (concat build-command " -target " target)))
+    (if (not (null target))
+        (setq build-command (concat build-command " -target " target)))
     (if (not configuration)
-        (setq build-command (concat build-command " -activeconfiguration"))
+        (setq build-command (concat build-command " -configuration Debug"))
       (setq build-command (concat build-command " -configuration " configuration)))
     (when sdk (setq build-command (concat build-command " -sdk " sdk)))
     build-command))
@@ -100,21 +99,5 @@
       )
     )
   )
-
-(defun bh-choose-header-mode ()
-  (interactive)
-  (if (string-equal (substring (buffer-file-name) -2) ".h")
-      (progn
-        ;; OK, we got a .h file, if a .m file exists we'll assume it's
-        ;; an objective c file. Otherwise, we'll look for a .cpp file.
-        (let ((dot-m-file (concat (substring (buffer-file-name) 0 -1) "m"))
-              (dot-cpp-file (concat (substring (buffer-file-name) 0 -1) "cpp")))
-          (if (file-exists-p dot-m-file)
-              (progn
-                (objc-mode)
-                )
-            (if (file-exists-p dot-cpp-file)
-                (c++-mode)))))))
-(add-hook 'find-file-hook 'bh-choose-header-mode)
 
 (provide 'xcode)
