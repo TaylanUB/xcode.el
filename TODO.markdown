@@ -1,6 +1,4 @@
 # TODO #
-## Build ##
-* use xcodebuild to build projects
 ## Run ##
 * run the applications from within emacs (iphone simulator)
 ## Completion ##

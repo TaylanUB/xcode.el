@@ -1,4 +1,4 @@
-;; emacs-xcode.el --- an interface to the XCode IDE.
+;; xcode.el --- an interface to the XCode IDE.
 ;;
 ;; Copyright (C) 2009  Yves Senn <yves.senn@gmail.com>
 ;;
@@ -19,6 +19,7 @@
 ;;
 ;;  - Yves Senn <yves senn * gmx ch>
 ;;  - Peter Jones <pjones@pmade.com>
+;;  - Taylan Ulrich Bayırlı/Kammer <taylanbayirli@gmail.com>
 ;;
 ;;; Conventions
 ;;
@@ -26,7 +27,7 @@
 ;; "xcode--<descriptive-name>", and name xcode command invocations
 ;; "xcode/command-name", like xcode/build.
 
-;;* emacs-xcode
+;;* xcode.el
 
 (defvar *xcode-project-root* nil)
 
