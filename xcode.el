@@ -46,23 +46,24 @@
   (or *xcode-project-root*
       (setq *xcode-project-root* (xcode--project-lookup))))
 
-(defun xcode--project-lookup (&optional current-directory)
-  (when (null current-directory) (setq current-directory default-directory))
-  (cond ((xcode--project-for-directory (directory-files current-directory)) (expand-file-name current-directory))
-        ((equal (expand-file-name current-directory) "/") nil)
-        (t (xcode--project-lookup (concat (file-name-as-directory current-directory) "..")))))
+(defun xcode--project-lookup (&optional directory)
+  (setq directory (directory-file-name (or directory default-directory)))
+  (cond ((directory-files directory nil "\\.xcodeproj$")
+         directory)
+        ((equal directory "/")
+         nil)
+        (t
+         (xcode--project-lookup (file-name-directory directory)))))
 
-(defun xcode--project-for-directory (files)
-  (let ((project-file nil))
-    (dolist (file files project-file)
-      (if (> (length file) 10)
-          (when (string-equal (substring file -10) ".xcodeproj") (setq project-file file))))))
+(defun xcode--project-xcodeproj ()
+  (car (directory-files (xcode--project-root) nil "\\.xcodeproj$")))
 
 (defmacro xcode--with-project-directory (&rest body)
   `(let ((oldpwd default-directory))
      (cd (xcode--project-root))
-     ,@body
-     (cd oldpwd)))
+     (let ((result (progn ,@body)))
+       (cd oldpwd)
+       result)))
 
 (defun xcode/build-compile ()
   (interactive)
@@ -71,7 +72,8 @@
 
 (defun xcode/build-list-sdks ()
   (interactive)
-  (message (shell-command-to-string "xcodebuild -showsdks")))
+  (xcode--with-project-directory
+   (message (shell-command-to-string "xcodebuild -showsdks"))))
 
 (defun xcode--build-command (&optional target configuration sdk)
   (concat "xcodebuild"
