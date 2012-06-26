@@ -1,6 +1,7 @@
-;; xcode.el --- an interface to the XCode IDE.
+;; xcode.el --- an interface to the Xcode IDE.
 ;;
 ;; Copyright (C) 2009  Yves Senn <yves.senn@gmail.com>
+;; Copyright (C) 2012  Taylan Ulrich Bayırlı/Kammer <taylanbayirli@gmail.com>
 ;;
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -29,7 +30,17 @@
 
 ;;* xcode.el
 
+(require 'cc-mode)
+(require 'find-file)
+
+(add-to-list 'cc-other-file-alist '("\\.m\\'" (".h")))
+(let* ((key "\\.h\\'")
+       ;; We use (list ..) and (car ..) because the alist is broken.
+       (newval (list (append (car (aget cc-other-file-alist key)) '(".m")))))
+  (aput 'cc-other-file-alist key newval))
+
 (defvar *xcode-project-root* nil)
+(make-variable-buffer-local '*xcode-project-root*)
 
 (defun xcode--project-root ()
   (or *xcode-project-root*
@@ -47,58 +58,25 @@
       (if (> (length file) 10)
           (when (string-equal (substring file -10) ".xcodeproj") (setq project-file file))))))
 
-(defun xcode--project-command (options)
-  (concat "cd " (xcode--project-root) "; " options))
+(defmacro xcode--with-project-directory (&rest body)
+  `(let ((oldpwd default-directory))
+     (cd (xcode--project-root))
+     ,@body
+     (cd oldpwd)))
 
 (defun xcode/build-compile ()
   (interactive)
-  (compile (xcode--project-command (xcode--build-command))))
+  (xcode--with-project-directory
+   (compile (xcode--build-command))))
 
 (defun xcode/build-list-sdks ()
   (interactive)
-  (message (shell-command-to-string (xcode--project-command "xcodebuild -showsdks"))))
+  (message (shell-command-to-string "xcodebuild -showsdks")))
 
 (defun xcode--build-command (&optional target configuration sdk)
-  (let ((build-command "xcodebuild"))
-    (if (not (null target))
-        (setq build-command (concat build-command " -target " target)))
-    (if (not configuration)
-        (setq build-command (concat build-command " -configuration Debug"))
-      (setq build-command (concat build-command " -configuration " configuration)))
-    (when sdk (setq build-command (concat build-command " -sdk " sdk)))
-    build-command))
-
-(defun xcode/toggle-header-and-source nil
-  "Toggle between source and header files"
-  (interactive)
-  (let ((fname buffer-file-name) oname)
-    (setq oname
-      (cond
-       ((string-match "\\.h$" fname) (replace-match ".m" nil nil fname))
-       ((string-match "\\.m$" fname) (replace-match ".h" nil nil fname))
-       (t fname)))
-    (find-file oname)))
-
-(defun bh-compile ()
-  (interactive)
-  (let ((df (directory-files "."))
-        (has-proj-file nil)
-        )
-    (while (and df (not has-proj-file))
-      (let ((fn (car df)))
-        (if (> (length fn) 10)
-            (if (string-equal (substring fn -10) ".xcodeproj")
-                (setq has-proj-file t)
-              )
-          )
-        )
-      (setq df (cdr df))
-      )
-    (if has-proj-file
-        (compile "xcodebuild -configuration Debug")
-      (compile "make")
-      )
-    )
-  )
+  (concat "xcodebuild"
+          (if target (concat " -target " target))
+          " -configuration " (or configuraiton "Debug")
+          (if sdk (concat " -sdk " sdk))))
 
 (provide 'xcode)
