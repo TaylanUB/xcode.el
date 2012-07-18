@@ -39,14 +39,18 @@
        (newval (list (append (car (aget cc-other-file-alist key)) '(".m")))))
   (aput 'cc-other-file-alist key newval))
 
-(defvar *xcode-project-root* nil)
+(defvar *xcode-project-root* nil
+  "The cached value of the root directory of the current project.")
 (make-variable-buffer-local '*xcode-project-root*)
 
 (defun xcode--project-root ()
+  "Returns the root directory of the current project.
+The \"current project\" is that to which default-directory belongs."
   (or *xcode-project-root*
       (setq *xcode-project-root* (xcode--project-lookup))))
 
 (defun xcode--project-lookup (&optional directory)
+  "Searches for the root directory of the current project."
   (setq directory (directory-file-name (or directory default-directory)))
   (cond ((directory-files directory nil "\\.xcodeproj$")
          directory)
@@ -56,9 +60,11 @@
          (xcode--project-lookup (file-name-directory directory)))))
 
 (defun xcode--project-xcodeproj ()
+  "Returns the .xcodeproj directory of the current project."
   (car (directory-files (xcode--project-root) nil "\\.xcodeproj$")))
 
 (defmacro xcode--with-project-directory (&rest body)
+  "Execute body with default-directory set to the root directory of the current project."
   `(let ((oldpwd default-directory))
      (cd (xcode--project-root))
      (let ((result (progn ,@body)))
@@ -66,19 +72,22 @@
        result)))
 
 (defun xcode/build-compile ()
+  "Compile the current project."
   (interactive)
   (xcode--with-project-directory
    (compile (xcode--build-command))))
 
-(defun xcode/build-list-sdks ()
-  (interactive)
-  (xcode--with-project-directory
-   (message (shell-command-to-string "xcodebuild -showsdks"))))
-
 (defun xcode--build-command (&optional target configuration sdk)
+  "Create the build command for the current project."
   (concat "xcodebuild"
           (if target (concat " -target " target))
           " -configuration " (or configuraiton "Debug")
           (if sdk (concat " -sdk " sdk))))
+
+(defun xcode/build-list-sdks ()
+  "List the available SDKs for the current project."
+  (interactive)
+  (xcode--with-project-directory
+   (message (shell-command-to-string "xcodebuild -showsdks"))))
 
 (provide 'xcode)
