@@ -71,14 +71,14 @@ The \"current project\" is that to which default-directory belongs."
        (cd oldpwd)
        result)))
 
-(defun xcode/build-compile ()
+(defun xcode/build-compile (&optional target configuration sdk)
   "Compile the current project."
   (interactive)
   (xcode--with-project-directory
-   (compile (xcode--build-command))))
+   (compile (xcode--build-command target configuration sdk))))
 
 (defun xcode--build-command (&optional target configuration sdk)
-  "Create the build command for the current project."
+  "Create a build command for the given parameters."
   (concat "xcodebuild"
           (if target (concat " -target " target))
           " -configuration " (or configuraiton "Debug")
