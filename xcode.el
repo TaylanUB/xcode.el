@@ -35,7 +35,7 @@
 
 (add-to-list 'cc-other-file-alist '("\\.m\\'" (".h")))
 (let* ((key "\\.h\\'")
-       ;; We use (list ..) and (car ..) because the alist is broken.
+       ;; We use `list' and `car' because the alist is broken.
        (newval (list (append (car (aget cc-other-file-alist key)) '(".m")))))
   (aput 'cc-other-file-alist key newval))
 
@@ -45,7 +45,7 @@
 
 (defun xcode--project-root ()
   "Returns the root directory of the current project.
-The \"current project\" is that to which default-directory belongs."
+The \"current project\" is that to which `default-directory' belongs."
   (or *xcode-project-root*
       (setq *xcode-project-root* (xcode--project-lookup))))
 
@@ -65,11 +65,8 @@ The \"current project\" is that to which default-directory belongs."
 
 (defmacro xcode--with-project-directory (&rest body)
   "Execute body with default-directory set to the root directory of the current project."
-  `(let ((oldpwd default-directory))
-     (cd (xcode--project-root))
-     (let ((result (progn ,@body)))
-       (cd oldpwd)
-       result)))
+  `(let ((default-directory (xcode--project-root)))
+     ,@body))
 
 (defun xcode/build-compile (&optional target configuration sdk)
   "Compile the current project."
@@ -89,5 +86,12 @@ The \"current project\" is that to which default-directory belongs."
   (interactive)
   (xcode--with-project-directory
    (message (shell-command-to-string "xcodebuild -showsdks"))))
+
+(defconst xcode--clang-flags "-arch armv7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.1.sdk/")
+
+(defun xcode/set-ac-clang-flags ()
+  "Sets `ac-clang-flags' to a value suitable for the current project."
+  ;; TODO: SDK, arch, etc. awareness
+  (setq ac-clang-flags xcode--clang-flags))
 
 (provide 'xcode)
