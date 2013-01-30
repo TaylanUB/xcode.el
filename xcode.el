@@ -127,14 +127,14 @@ vector."
   "Run xcodebuild(1) with the given ARGUMENTS as a shell command.
 
 See `xcode--build-command' for details about ARGUMENTS."
-  (shell-command (apply xcode--build-command arguments)))
+  (shell-command (apply 'xcode--build-command arguments)))
 
 (defun xcode--build-output (&rest arguments)
   "Run xcodebuild(1) with the given ARGUMENTS and return the
 output.
 
 See `xcode--build-command' for details about ARGUMENTS."
-  (shell-command-to-string (apply xcode--build-command argument)))
+  (shell-command-to-string (apply 'xcode--build-command arguments)))
 
 (defun xcode/build ()
   "Compile the current project."
