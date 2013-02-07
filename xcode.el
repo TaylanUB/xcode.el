@@ -151,13 +151,18 @@ See `xcode--build-command' for details about ARGUMENTS."
     ;; xcodebuild(1) doesn't do that already).
     (compile (xcode--build-command))))
 
+(defvar *xcode--sdk-list* nil
+  "Cached return value of `xcode--get-sdk-list'.")
 (defun xcode--get-sdk-list ()
   "Return the list of SDKs as reported by xcodebuild(1)."
-  (remove-if #'null
-             (maplist (lambda (list)
-                        (if (string= (car list) "-sdk")
-                            (cadr list)))
-                      (split-string (xcode--build-output :showsdks) nil t))))
+  (or *xcode--sdk-list*
+      (setq *xcode--sdk-list*
+            (remove-if #'null (maplist
+                               (lambda (list)
+                                 (if (string= (car list) "-sdk")
+                                     (cadr list)))
+                               (split-string (xcode--build-output :showsdks)
+                                             nil t))))))
 
 (defun xcode/list-sdks ()
   "List the available SDKs for the current project."
