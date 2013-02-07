@@ -92,6 +92,7 @@ project.")
 of the current project."
   (declare (indent 0))
   `(let ((default-directory (xcode--project-root)))
+     (assert default-directory nil "Not in an Xcode project directory.")
      ,@body))
 
 
@@ -152,17 +153,16 @@ See `xcode--build-command' for details about ARGUMENTS."
 
 (defun xcode--get-sdk-list ()
   "Return the list of SDKs as reported by xcodebuild(1)."
-  (cl-remove-if #'null
-                (maplist (lambda (list)
-                           (if (string= (car list) "-sdk")
-                               (cdr list)))
-                         (split-string (xcode--build-output :showsdks) nil t))))
+  (remove-if #'null
+             (maplist (lambda (list)
+                        (if ((string= (car list) "-sdk"))
+                            (cdr list)))
+                      (split-string (xcode--build-output :showsdks) nil t))))
 
 (defun xcode/list-sdks ()
   "List the available SDKs for the current project."
   (interactive)
-  (xcode--with-project-directory
-    (message "%S" (xcode--get-sdk-list))))
+  (message "%S" (xcode--get-sdk-list)))
 
 ;;; TODO: auto-complete-clang integration
 ;;
