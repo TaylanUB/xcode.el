@@ -156,7 +156,7 @@ See `xcode--build-command' for details about ARGUMENTS."
   (remove-if #'null
              (maplist (lambda (list)
                         (if (string= (car list) "-sdk")
-                            (cdr list)))
+                            (cadr list)))
                       (split-string (xcode--build-output :showsdks) nil t))))
 
 (defun xcode/list-sdks ()
