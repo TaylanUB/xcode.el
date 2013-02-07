@@ -155,7 +155,7 @@ See `xcode--build-command' for details about ARGUMENTS."
   "Return the list of SDKs as reported by xcodebuild(1)."
   (remove-if #'null
              (maplist (lambda (list)
-                        (if ((string= (car list) "-sdk"))
+                        (if (string= (car list) "-sdk")
                             (cdr list)))
                       (split-string (xcode--build-output :showsdks) nil t))))
 
