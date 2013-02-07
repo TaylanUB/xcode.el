@@ -152,7 +152,11 @@ See `xcode--build-command' for details about ARGUMENTS."
 
 (defun xcode--get-sdk-list ()
   "Return the list of SDKs as reported by xcodebuild(1)."
-  (split-string (xcode--build-output :showsdks) nil t))
+  (cl-remove-if #'null
+                (maplist (lambda (list)
+                           (if (string= (car list) "-sdk")
+                               (cdr list)))
+                         (split-string (xcode--build-output :showsdks) nil t))))
 
 (defun xcode/list-sdks ()
   "List the available SDKs for the current project."
@@ -165,7 +169,10 @@ See `xcode--build-command' for details about ARGUMENTS."
 ;; Example complete clang command after putting framework headers in
 ;; ~/tmp/iosheaders:
 ;; 
-;; clang Foo.m --analyze -x objective-c -arch armv7 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.0.sdk -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.0.sdk/usr/include/ -I$HOME/tmp/iosheaders
+;; clang Foo.m --analyze -x objective-c -arch armv7 \
+;; -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.0.sdk \
+;; -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.0.sdk/usr/include/ \
+;; -I$HOME/tmp/iosheaders
 ;; 
 ;; The header generator would be a separate, stand-alone program.  But xcode.el
 ;; should be able to tell us what other flags to use for a project.  For example
