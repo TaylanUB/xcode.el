@@ -1,0 +1,9 @@
+#!/bin/sh
+
+: ${PLATFORM=iPhoneOS}
+: ${SDKVERSION=6.1}
+
+sdkroot=/Applications/Xcode.app/Contents/Developer/Platforms/$PLATFORM.platform/Developer/SDKs/$PLATFORM$SDKVERSION.sdk
+headersdir=$HOME/tmp/ios-headers
+
+exec clang -arch armv7 -isysroot "$sdkroot" -I"$sdkroot"/usr/include/ -I"$headersdir" "$@"

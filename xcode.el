@@ -85,14 +85,24 @@ project.")
 
 (defun xcode--project-xcodeproj ()
   "Returns the .xcodeproj directory of the current project."
-  (car (directory-files (xcode--project-root) nil "\\.xcodeproj$")))
+  (let ((project-root (xcode--project-root)))
+    (and project-root
+         (car (directory-files project-root nil "\\.xcodeproj$")))))
+
+(defconst xcode--settings-file-name ".emacs-xcode.el")
+
+(defun xcode--project-settings-file ()
+  "Returns the xcode.el settings-file for the current project."
+  (let ((project-root (xcode--project-root)))
+    (and project-root
+         (concat project-root "/" xcode--settings-file-name))))
 
 (defmacro xcode--with-project-directory (&rest body)
   "Execute body with default-directory set to the root directory
 of the current project."
   (declare (indent 0))
   `(let ((default-directory (xcode--project-root)))
-     (assert default-directory nil "Not in an Xcode project directory.")
+     (assert default-directory nil "Not in an Xcode project (sub-)directory.")
      ,@body))
 
 
@@ -153,9 +163,9 @@ See `xcode--build-command' for details about ARGUMENTS."
 
 (defvar *xcode--sdk-list* nil
   "Cached return value of `xcode--get-sdk-list'.")
-(defun xcode--get-sdk-list ()
+(defun xcode--get-sdk-list (&optional ignore-cache)
   "Return the list of SDKs as reported by xcodebuild(1)."
-  (or *xcode--sdk-list*
+  (or (and (not ignore-cache) *xcode--sdk-list*)
       (setq *xcode--sdk-list*
             (remove-if #'null (maplist
                                (lambda (list)
@@ -165,37 +175,17 @@ See `xcode--build-command' for details about ARGUMENTS."
                                              nil t))))))
 
 (defun xcode/list-sdks ()
-  "List the available SDKs for the current project."
+  "List the available SDKs as reported by xcodebuild(1)."
   (interactive)
   (message "%S" (xcode--get-sdk-list)))
 
 ;;; TODO: auto-complete-clang integration
 ;;
-;; Example complete clang command after putting framework headers in
-;; ~/tmp/iosheaders:
-;; 
-;; clang Foo.m --analyze -x objective-c -arch armv7 \
-;; -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.0.sdk \
-;; -I/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.0.sdk/usr/include/ \
-;; -I$HOME/tmp/iosheaders
-;; 
-;; The header generator would be a separate, stand-alone program.  But xcode.el
-;; should be able to tell us what other flags to use for a project.  For example
-;; extra -I flags for "Group" entries in the .pbxproj.  Also see TODO in
-;; `xcode/build'.
+;; See the shell scripts clang-ios and generate-ios-headers.
 ;;
-;; Here's the basic header-generator script:
-;;
-;; IOSFRAMEWORKS=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.0.sdk/System/Library/Frameworks
-;; rm -rf ~/tmp/iosheaders
-;; mkdir -p ~/tmp/iosheaders
-;; for file in "$IOSFRAMEWORKS"/*
-;; do
-;;     fw=${file##*/}
-;;     fw=${fw%.framework}
-;;     mkdir ~/tmp/iosheaders/"$fw"
-;;     cp "$file"/Headers/* ~/tmp/iosheaders/"$fw"
-;; done
+;; The header generator is neat but xcode.el should be able to tell us what
+;; other flags to use for a project.  For example extra -I flags for "Group"
+;; entries in the .pbxproj.  Also see TODO in `xcode/build'.
 
 (provide 'xcode)
 ;;; xcode.el ends here
