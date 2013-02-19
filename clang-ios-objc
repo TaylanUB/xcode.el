@@ -1,11 +1,11 @@
 #!/bin/sh
 
-: ${MINTARGET=4.3}
+: ${SDKMIN=4.3}
 : ${PLATFORM=iPhoneOS}
 
 case $PLATFORM in
-    (iPhoneOS) mintarget=-miphoneos-version-min=$MINTARGET ;;
-    (*) mintarget=-mios-simulator-version-min=$MINTARGET
+    (iPhoneOS) sdkmin=-miphoneos-version-min=$SDKMIN ;;
+    (*) sdkmin=-mios-simulator-version-min=$SDKMIN
 esac
 
 exec clang-ios \
@@ -17,6 +17,6 @@ exec clang-ios \
 -fstrict-aliasing \
 -fobjc-abi-version=2 \
 -fobjc-legacy-dispatch \
-$mintarget \
+$sdkmin \
 -Xclang -fobjc-runtime-has-weak \
 "$@"

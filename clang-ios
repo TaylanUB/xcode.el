@@ -2,7 +2,7 @@
 
 : ${CLANG=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang}
 : ${PLATFORM=iPhoneOS}
-: ${SDKVERSION=6.1}
+: ${SDKBASE=6.1}
 
 if [ -z ${ARCH+.} ]
 then
@@ -12,7 +12,7 @@ then
     esac
 fi
 
-sdkroot=/Applications/Xcode.app/Contents/Developer/Platforms/$PLATFORM.platform/Developer/SDKs/$PLATFORM$SDKVERSION.sdk
-headersdir=$HOME/tmp/ios-headers/$PLATFORM/$SDKVERSION
+sdkroot=/Applications/Xcode.app/Contents/Developer/Platforms/$PLATFORM.platform/Developer/SDKs/$PLATFORM$SDKBASE.sdk
+headersdir=$HOME/tmp/ios-headers/$PLATFORM/$SDKBASE
 
 exec "$CLANG" $ARCH -isysroot "$sdkroot" -I"$sdkroot"/usr/include/ -I"$headersdir" "$@"
