@@ -1,17 +1,23 @@
 #!/bin/sh
 
-: ${PLATFORM=iPhoneOS}
-: ${SDKVERSION=6.1}
+: ${PLATFORMS=iPhoneOS iPhoneSimulator}
+: ${SDKVERSIONS=6.1}
 
-fwdir=/Applications/Xcode.app/Contents/Developer/Platforms/$PLATFORM.platform/Developer/SDKs/$PLATFORM$SDKVERSION.sdk/System/Library/Frameworks
-targetdir=$HOME/tmp/ios-headers
-
-rm -rf "$targetdir"
-mkdir -p "$targetdir"
-for file in "$fwdir"/*
+for platform in $PLATFORMS
 do
-    fw=${file##*/}
-    fw=${fw%.framework}
-    mkdir "$targetdir/$fw"
-    cp "$file"/Headers/* "$targetdir/$fw"
+    for sdkversion in $SDKVERSIONS
+    do
+        fwdir=/Applications/Xcode.app/Contents/Developer/Platforms/$platform.platform/Developer/SDKs/$platform$sdkversion.sdk/System/Library/Frameworks
+        targetdir=$HOME/tmp/ios-headers/$platform/$sdkversion
+
+        rm -rf "$targetdir"
+        mkdir -p "$targetdir"
+        for file in "$fwdir"/*
+        do
+            fw=${file##*/}
+            fw=${fw%.framework}
+            mkdir "$targetdir/$fw"
+            cp "$file"/Headers/* "$targetdir/$fw"
+        done
+    done
 done

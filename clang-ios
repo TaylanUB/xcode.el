@@ -1,9 +1,18 @@
 #!/bin/sh
 
+: ${CLANG=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang}
 : ${PLATFORM=iPhoneOS}
 : ${SDKVERSION=6.1}
 
-sdkroot=/Applications/Xcode.app/Contents/Developer/Platforms/$PLATFORM.platform/Developer/SDKs/$PLATFORM$SDKVERSION.sdk
-headersdir=$HOME/tmp/ios-headers
+if [ -z ${ARCH+.} ]
+then
+    case $PLATFORM in
+        (*iPhoneOS*) ARCH="-arch armv7 -arch armv7s" ;;
+        (*) ARCH="-arch i386 -arch x86_64"
+    esac
+fi
 
-exec clang -arch armv7 -isysroot "$sdkroot" -I"$sdkroot"/usr/include/ -I"$headersdir" "$@"
+sdkroot=/Applications/Xcode.app/Contents/Developer/Platforms/$PLATFORM.platform/Developer/SDKs/$PLATFORM$SDKVERSION.sdk
+headersdir=$HOME/tmp/ios-headers/$PLATFORM/$SDKVERSION
+
+exec "$CLANG" $ARCH -isysroot "$sdkroot" -I"$sdkroot"/usr/include/ -I"$headersdir" "$@"
