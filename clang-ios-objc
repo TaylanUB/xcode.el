@@ -1,0 +1,22 @@
+#!/bin/sh
+
+: ${MINTARGET=4.3}
+: ${PLATFORM=iPhoneOS}
+
+case $PLATFORM in
+    (iPhoneOS) mintarget=-miphoneos-version-min=$MINTARGET ;;
+    (*) mintarget=-mios-simulator-version-min=$MINTARGET
+esac
+
+exec clang-ios \
+-fobjc-arc \
+-fmessage-length=0 \
+-std=gnu99 \
+-fexceptions \
+-fasm-blocks \
+-fstrict-aliasing \
+-fobjc-abi-version=2 \
+-fobjc-legacy-dispatch \
+$mintarget \
+-Xclang -fobjc-runtime-has-weak \
+"$@"

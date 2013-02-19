@@ -7,7 +7,7 @@
 if [ -z ${ARCH+.} ]
 then
     case $PLATFORM in
-        (*iPhoneOS*) ARCH="-arch armv7 -arch armv7s" ;;
+        (iPhoneOS) ARCH="-arch armv7 -arch armv7s" ;;
         (*) ARCH="-arch i386 -arch x86_64"
     esac
 fi
