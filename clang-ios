@@ -1,18 +1,6 @@
 #!/bin/sh
 
-: ${CLANG=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang}
-: ${PLATFORM=iPhoneOS}
-: ${SDKBASE=6.1}
+. ios-build-env.sh
 
-if [ -z ${ARCH+.} ]
-then
-    case $PLATFORM in
-        (iPhoneOS) ARCH="-arch armv7 -arch armv7s" ;;
-        (*) ARCH="-arch i386 -arch x86_64"
-    esac
-fi
-
-sdkroot=/Applications/Xcode.app/Contents/Developer/Platforms/$PLATFORM.platform/Developer/SDKs/$PLATFORM$SDKBASE.sdk
-headersdir=$HOME/tmp/ios-headers/$PLATFORM/$SDKBASE
-
-exec "$CLANG" $ARCH -isysroot "$sdkroot" -I"$sdkroot"/usr/include/ -I"$headersdir" "$@"
+# TODO: CFLAGS ?
+exec "$CC" $CPPFLAGS $LDFLAGS "$@"

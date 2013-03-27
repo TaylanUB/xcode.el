@@ -1,7 +1,6 @@
 #!/bin/sh
 
-: ${SDKMIN=4.3}
-: ${PLATFORM=iPhoneOS}
+. ios-build-env.sh
 
 case $PLATFORM in
     (iPhoneOS) sdkmin=-miphoneos-version-min=$SDKMIN ;;
