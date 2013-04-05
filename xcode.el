@@ -33,8 +33,7 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl))
+(require 'cl)
 
 (require 'cc-mode)
 (require 'find-file)
@@ -167,7 +166,7 @@ See `xcode--build-command' for details about ARGUMENTS."
   "Return the list of SDKs as reported by xcodebuild(1)."
   (or (and (not ignore-cache) *xcode--sdk-list*)
       (setq *xcode--sdk-list*
-            (remove-if #'null (maplist
+            (cl-remove-if #'null (cl-maplist
                                (lambda (list)
                                  (if (string= (car list) "-sdk")
                                      (cadr list)))
