@@ -2,5 +2,4 @@
 
 . ios-build-env.sh
 
-# TODO: CFLAGS ?
-exec "$CC" $CPPFLAGS $LDFLAGS "$@"
+exec "$CC" $CFLAGS $LDFLAGS "$@"

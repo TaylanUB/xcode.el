@@ -12,12 +12,7 @@ do
 
         rm -rf "$targetdir"
         mkdir -p "$targetdir"
-        for file in "$fwdir"/*
-        do
-            fw=${file##*/}
-            fw=${fw%.framework}
-            mkdir "$targetdir/$fw"
-            cp "$file"/Headers/* "$targetdir/$fw"
-        done
+        find "$fwdir" -type d -name Headers -exec \
+            ./copy-headers-from-to {} "$targetdir" \;
     done
 done

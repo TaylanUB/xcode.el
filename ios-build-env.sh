@@ -8,6 +8,7 @@ export AR="$DEVROOT/usr/bin/ar"
 export AS="$DEVROOT/usr/bin/as"
 export NM="$DEVROOT/usr/bin/nm"
 export RANLIB="$DEVROOT/usr/bin/ranlib"
+export LIBTOOL="$DEVROOT/usr/bin/libtool"
 
 Default PLATFORM "iPhoneOS"
 Default SDKBASE "6.1"
@@ -18,6 +19,7 @@ case $PLATFORM in
     (iPhoneOS) arch="-arch armv7 -arch armv7s" ;;
     (*) arch="-arch i386 -arch x86_64"
 esac
-export CPPFLAGS="$arch -isysroot $SDKROOT -I$SDKROOT/usr/include -I$HEADERSDIR"
-# TODO: CFLAGS ?
-export LDFLAGS="-L$SDKROOT/usr/lib/"
+export CPPFLAGS=""
+export CFLAGS="$arch -isysroot $SDKROOT -I$HEADERSDIR"
+export LDFLAGS=""
+export LIBS=""
